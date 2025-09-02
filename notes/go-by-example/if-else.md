@@ -1,4 +1,4 @@
-# Go by Example: For
+# Go by Example: If
 
 You can have an `if` statement without an else. Logical operators like `&&` and `||` are often useful in conditions. A statement can precede conditionals; any variables declared in this statement are available in the current and all subsequent branches.
 
