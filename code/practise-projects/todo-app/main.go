@@ -1,10 +1,30 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 )
 
-/* func new_task() {
+func prompt() int {
+
+	var number int
+
+	fmt.Printf("\n")
+	fmt.Println("Welcome to the todo list app.")
+	fmt.Printf("\n")
+	fmt.Println("Please select one of the following option: ")
+	fmt.Printf("\n")
+	fmt.Println("1. Add a new task, 2. Delete a task, 3. View the list of tasks, 4. Exit the program ")
+	fmt.Printf("\n")
+	fmt.Printf("Option: ")
+	fmt.Scan(&number)
+	fmt.Printf("\n")
+
+	return number
+}
+
+func new_task() {
 
 	reader := bufio.NewScanner(os.Stdin)
 	fmt.Printf("Enter the new task: ")
@@ -26,7 +46,7 @@ func storing_tasks(task string) {
 	if err != nil {
 		fmt.Println("Error writing to file: ", err)
 	}
-} */
+}
 
 func num_to_delete() int {
 
@@ -37,32 +57,80 @@ func num_to_delete() int {
 	return i
 }
 
-func delete_tasks(num int) {
+func delete_tasks() {
 
+	number := num_to_delete()
+	fmt.Println("The number is: ", number)
+
+	file, err := os.OpenFile("file.txt", os.O_RDWR, 0666)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var lines []string
+
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if number < 1 || number > len(lines) {
+		fmt.Println("Invalid line number")
+		return
+	}
+
+	lines = append(lines[:number-1], lines[number:]...)
+
+	file.Truncate(0)
+	file.Seek(0, 0)
+
+	writer := bufio.NewWriter(file)
+	for _, line := range lines {
+		fmt.Fprintln(writer, line)
+	}
+	writer.Flush()
 }
 
-/* func prompt() int {
+func view_tasks() {
 
-	var number int
+	file, err := os.Open("file.txt")
+	if err != nil {
+		fmt.Println("Error opening file: ", err)
+		return
+	}
+	defer file.Close()
 
-	fmt.Printf("\n")
-	fmt.Println("Welcome to the todo list app.")
-	fmt.Printf("\n")
-	fmt.Println("Please select one of the following option: ")
-	fmt.Printf("\n")
-	fmt.Println("1. Add a new task, 2. Delete a task, 3. View the list of tasks, 4. Exit the program ")
-	fmt.Printf("\n")
-	fmt.Printf("Option: ")
-	fmt.Scan(&number)
-	fmt.Printf("\n")
-
-	return number
-} */
+	scanner := bufio.NewScanner(file)
+	var i int
+	for scanner.Scan() {
+		i++
+		fmt.Printf("%d: %s\n", i, scanner.Text())
+	}
+}
 
 func main() {
 
-	// number := prompt()
+	for {
+		number := prompt()
 
-	new_task()
+		switch number {
+
+		case 1:
+			new_task()
+		case 2:
+			delete_tasks()
+		case 3:
+			view_tasks()
+		case 4:
+			fmt.Println("Exiting the program. Goodbye!")
+			return
+		default:
+			prompt()
+
+		}
+	}
 
 }
